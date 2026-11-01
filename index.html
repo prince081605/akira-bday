@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Akira's Baptism</title>
+  <meta name="description" content="You're invited to celebrate the Baptism of Akira.">
+  <meta name="theme-color" content="#FFD23F">
+
+  <!-- Link preview in Messenger / Facebook / Viber. Update the name here too if it changes. -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="You're invited to Akira's Baptism! 🕊️">
+  <meta property="og:description" content="Join our family as we celebrate this blessed day.">
+  <meta property="og:url" content="https://prince081605.github.io/akira-bday/">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%95%8A%EF%B8%8F</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Reusable drawings -->
+  <svg class="sprites" aria-hidden="true">
+    <defs>
+      <symbol id="i-balloon" viewBox="0 0 48 96">
+        <path d="M24 63c-5 9 6 15 0 31" fill="none" stroke="#2B2D42" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M24 2C10 2 3 13 3 25c0 16 12 31 21 34 9-3 21-18 21-34C45 13 38 2 24 2z" fill="currentColor" stroke="#2B2D42" stroke-width="2.5"/>
+        <path d="M20 59h8l-2 5h-4z" fill="currentColor" stroke="#2B2D42" stroke-width="2.5" stroke-linejoin="round"/>
+        <ellipse cx="14" cy="19" rx="3.5" ry="7" fill="#fff" opacity=".65" transform="rotate(25 14 19)"/>
+      </symbol>
+      <symbol id="i-cloud" viewBox="0 0 120 64">
+        <path d="M24 58C11 58 4 50 4 41c0-10 8-17 18-16 2-12 12-19 24-18 10 1 17 7 20 15 4-4 11-6 18-4 10 3 15 11 14 19 10 0 18 7 18 13 0 5-4 8-10 8z" fill="#fff" stroke="#2B2D42" stroke-width="3" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="i-dove" viewBox="0 0 80 56">
+        <path d="M10 31c0-6 6-9 11-7 9 3 21 7 31 6l20-9c2-1 4 1 2 3l-10 8 10 2c2 1 1 3-1 3H58c-8 7-26 9-36 3-5-3-9-5-12-9z" fill="#fff" stroke="#2B2D42" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M28 28C30 15 40 5 58 3c-4 6-6 12-8 18-4 4-12 7-22 7z" fill="#fff" stroke="#2B2D42" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M10 30l-6 2 6 2" fill="#FFD23F" stroke="#2B2D42" stroke-width="2" stroke-linejoin="round"/>
+        <circle cx="15" cy="28.5" r="1.8" fill="#2B2D42"/>
+      </symbol>
+      <symbol id="i-shell" viewBox="0 0 64 58">
+        <path d="M32 52C22 50 6 38 4 22 3 12 14 4 32 4s29 8 28 18c-2 16-18 28-28 30z" fill="currentColor" stroke="#2B2D42" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M32 50 11 12M32 50 21 6M32 50V5M32 50 43 6M32 50 53 12" stroke="#2B2D42" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M24 50l8 6 8-6" fill="currentColor" stroke="#2B2D42" stroke-width="3" stroke-linejoin="round"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- 1. Hero -->
+  <header class="hero">
+    <div class="sky" aria-hidden="true">
+      <svg class="cloud" style="left:-2%; top:7%; --d:0s"><use href="#i-cloud"/></svg>
+      <svg class="cloud cloud--sm" style="left:72%; top:34%; --d:-6s"><use href="#i-cloud"/></svg>
+      <svg class="cloud" style="left:8%; top:80%; --d:-11s"><use href="#i-cloud"/></svg>
+      <svg class="balloon" style="left:6%; top:30%; --c:#FF6FA5; --d:0s"><use href="#i-balloon"/></svg>
+      <svg class="balloon" style="left:84%; top:6%; --c:#2EC4B6; --d:-2s"><use href="#i-balloon"/></svg>
+      <svg class="balloon balloon--extra" style="left:80%; top:62%; --c:#FFD23F; --d:-4s"><use href="#i-balloon"/></svg>
+      <svg class="balloon balloon--extra" style="left:15%; top:58%; --c:#5BC0EB; --d:-1s"><use href="#i-balloon"/></svg>
+      <svg class="dove" style="left:24%; top:10%; --d:0s"><use href="#i-dove"/></svg>
+      <svg class="dove dove--flip" style="left:64%; top:84%; --d:-3s"><use href="#i-dove"/></svg>
+    </div>
+
+    <div class="hero-inner">
+      <p class="eyebrow">You're invited to the</p>
+      <h1>
+        <span class="title-small">Baptism of</span>
+        <span class="name">
+          <span class="sr-only" data-name>Akira</span>
+          <span class="name-letters" id="name-letters" aria-hidden="true"></span>
+        </span>
+      </h1>
+      <p class="hero-date"><span id="hero-date">Sunday, December 13, 2026</span> · <span id="hero-time">10:00 AM</span></p>
+      <button class="btn btn--pink btn--big" id="celebrate" type="button">Celebrate 🎉</button>
+      <a class="scroll-hint" href="#countdown">See the details <span aria-hidden="true">↓</span></a>
+    </div>
+  </header>
+
+  <main>
+    <!-- 2. Countdown -->
+    <section class="section band band--sky" id="countdown">
+      <div class="container">
+        <h2 class="section-title" id="countdown-title">Counting down to the big day</h2>
+        <p class="section-sub">Every second brings us closer to celebrating <span data-name>Akira</span>!</p>
+        <div class="timer reveal" id="timer">
+          <div class="unit" style="--c:#FFD23F"><span class="unit-num" id="cd-days">0</span><span class="unit-label">Days</span></div>
+          <div class="unit" style="--c:#FF6FA5"><span class="unit-num" id="cd-hours">00</span><span class="unit-label">Hours</span></div>
+          <div class="unit" style="--c:#2EC4B6"><span class="unit-num" id="cd-minutes">00</span><span class="unit-label">Minutes</span></div>
+          <div class="unit" style="--c:#fff"><span class="unit-num" id="cd-seconds">00</span><span class="unit-label">Seconds</span></div>
+        </div>
+        <p class="timer-done" id="timer-done" hidden></p>
+      </div>
+    </section>
+
+    <!-- 3. Event details -->
+    <section class="section band band--cream" id="details">
+      <div class="container">
+        <h2 class="section-title">When &amp; where</h2>
+        <p class="section-sub">We'd love for you to be part of the whole day.</p>
+        <div class="cards reveal">
+          <article class="card" style="--c:#5BC0EB">
+            <div class="card-icon" aria-hidden="true">⛪</div>
+            <h3>Ceremony</h3>
+            <p class="card-when" id="ceremony-when"></p>
+            <p class="card-place" id="ceremony-place"></p>
+            <p class="card-address" id="ceremony-address"></p>
+            <a class="btn btn--sky btn--small" id="ceremony-map" target="_blank" rel="noopener">Open in Maps <span aria-hidden="true">↗</span></a>
+          </article>
+          <article class="card" style="--c:#FF6FA5">
+            <div class="card-icon" aria-hidden="true">🍰</div>
+            <h3>Reception</h3>
+            <p class="card-when" id="reception-when"></p>
+            <p class="card-place" id="reception-place"></p>
+            <p class="card-address" id="reception-address"></p>
+            <a class="btn btn--pink btn--small" id="reception-map" target="_blank" rel="noopener">Open in Maps <span aria-hidden="true">↗</span></a>
+          </article>
+          <article class="card" style="--c:#FFD23F">
+            <div class="card-icon" aria-hidden="true">📝</div>
+            <h3>Good to know</h3>
+            <ul class="card-notes" id="notes"></ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Message from the family -->
+    <section class="section band band--blush" id="message">
+      <div class="container">
+        <div class="paper reveal">
+          <svg class="paper-shell" aria-hidden="true"><use href="#i-shell"/></svg>
+          <h2 class="section-title">A message from the family</h2>
+          <div class="paper-body" id="message-body"></div>
+          <p class="signoff">With love,<br><strong id="message-from"></strong></p>
+
+          <div class="godparents" id="godparents">
+            <h3>Ninongs &amp; Ninangs</h3>
+            <ul id="godparents-list"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Gallery -->
+    <section class="section band band--cream" id="gallery">
+      <div class="container">
+        <h2 class="section-title">Little moments</h2>
+        <p class="section-sub">A few snapshots of our little blessing.</p>
+        <div class="gallery-grid reveal" id="gallery-grid"></div>
+      </div>
+    </section>
+
+    <!-- 6. RSVP -->
+    <section class="section band band--yellow" id="rsvp">
+      <div class="container rsvp-inner reveal">
+        <h2 class="section-title">Will you join us?</h2>
+        <p class="rsvp-text">Kindly let us know by <strong id="rsvp-by"></strong>.</p>
+        <p class="rsvp-text">Contact <strong id="rsvp-contact"></strong></p>
+        <div class="rsvp-actions">
+          <a class="btn btn--teal" id="rsvp-call">📞 Call</a>
+          <a class="btn btn--pink" id="rsvp-text">💬 Text</a>
+          <a class="btn btn--sky" id="rsvp-messenger" target="_blank" rel="noopener" hidden>✉️ Messenger</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 7. Footer -->
+  <footer class="band band--ink footer">
+    <div class="footer-doves" aria-hidden="true">
+      <svg class="dove dove--still"><use href="#i-dove"/></svg>
+      <svg class="dove dove--still dove--flip"><use href="#i-dove"/></svg>
+    </div>
+    <p class="footer-love">With love, the family of <span data-name>Akira</span></p>
+    <p class="footer-small">Made with 💛 for a very special day</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" defer></script>
+  <script src="script.js" defer></script>
+</body>
+</html>
