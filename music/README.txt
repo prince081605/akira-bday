@@ -1,9 +1,11 @@
 The music starts when a guest taps the "Beep beep!" button.
 
-Right now it plays a little built-in tune. To use your own song instead, put an MP3
-in this folder (for example song.mp3), then open script.js and set music near the
-end of the EVENT list:
+It plays wheels-on-the-bus.m4a from this folder. To use a different song, put an
+MP3 or M4A in this folder (for example song.mp3), then open script.js and set music
+near the end of the EVENT list:
   music: "music/song.mp3",
+
+Use file names without spaces, e.g. my-song.mp3.
 
 Set it back to "" to use the built-in tune again.
 

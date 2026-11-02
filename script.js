@@ -55,9 +55,9 @@ const EVENT = {
     { src: "", caption: "Blessed day", emoji: "🕊️" },
   ],
 
-  // Music starts when a guest taps "Beep beep!". To use your own song, put an MP3 in the
+  // Music starts when a guest taps "Beep beep!". To use your own song, put an MP3 or M4A in the
   // music/ folder and set its path, e.g. "music/song.mp3". Leave "" for the built-in tune.
-  music: "",
+  music: "music/wheels-on-the-bus.m4a",
 };
 
 /* ============================================================
