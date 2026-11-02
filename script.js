@@ -54,6 +54,10 @@ const EVENT = {
     { src: "", caption: "Family love", emoji: "🏡" },
     { src: "", caption: "Blessed day", emoji: "🕊️" },
   ],
+
+  // Music starts when a guest taps "Beep beep!". To use your own song, put an MP3 in the
+  // music/ folder and set its path, e.g. "music/song.mp3". Leave "" for the built-in tune.
+  music: "",
 };
 
 /* ============================================================
@@ -266,12 +270,18 @@ function celebrate(power = 1) {
   confetti({ ...base, shapes: [busShape], scalar: 2.4, particleCount: 12, spread: 100, startVelocity: 38, origin: { y: 0.6 } });
 }
 
-// A short two-tone "beep beep", made in the browser so there is no sound file to load.
 let audio;
-function honk() {
+function getAudio() {
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  if (!AudioCtx) return;
+  if (!AudioCtx) return null;
   audio ??= new AudioCtx();
+  if (audio.state !== "running") audio.resume();
+  return audio;
+}
+
+// A short two-tone "beep beep", made in the browser so there is no sound file to load.
+function honk() {
+  if (!getAudio()) return;
   const now = audio.currentTime;
   [0, 0.22].forEach((start) => {
     [392, 494].forEach((freq) => {
@@ -290,13 +300,143 @@ function honk() {
   });
 }
 
+// The built-in tune: an original little melody, as [note, length in eighth notes].
+const TUNE = [
+  ["C5", 1], ["E5", 1], ["G5", 1], ["E5", 1], ["C5", 2], ["G4", 2],
+  ["A4", 1], ["C5", 1], ["F5", 1], ["E5", 1], ["D5", 4],
+  ["G4", 1], ["B4", 1], ["D5", 1], ["F5", 1], ["E5", 2], ["C5", 2],
+  ["D5", 1], ["C5", 1], ["B4", 1], ["A4", 1], ["G4", 4],
+  ["C5", 1], ["E5", 1], ["G5", 1], ["A5", 1], ["G5", 2], ["E5", 2],
+  ["F5", 1], ["A5", 1], ["G5", 1], ["F5", 1], ["E5", 2], ["C5", 2],
+  ["D5", 1], ["F5", 1], ["E5", 1], ["D5", 1], ["C5", 1], ["D5", 1], ["E5", 1], ["G4", 1],
+  ["C5", 2], ["G4", 1], ["E4", 1], ["C4", 4],
+];
+// Bass notes on beats 1 and 3 of each bar
+const BASS = ["C3", "G3", "F3", "C4", "G3", "D4", "G3", "D4", "C3", "G3", "F3", "C4", "G3", "D4", "C3", "G3"];
+const EIGHTH = 60 / 132 / 2; // seconds
+const LOOP = TUNE.reduce((sum, [, len]) => sum + len, 0);
+const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+const noteFreq = (name) => {
+  const midi = NOTE_NAMES.indexOf(name.slice(0, -1)) + (Number(name.slice(-1)) + 1) * 12;
+  return 440 * 2 ** ((midi - 69) / 12);
+};
+
+const TUNE_NOTES = (() => {
+  const notes = [];
+  let at = 0;
+  TUNE.forEach(([note, len]) => {
+    notes.push({ at, note, len, peak: 0.5 });
+    at += len;
+  });
+  BASS.forEach((note, i) => notes.push({ at: i * 4, note, len: 3, peak: 0.35 }));
+  return notes.sort((a, b) => a.at - b.at);
+})();
+
+let tuneOut;
+let tuneTimer;
+
+function playNote({ note, len, peak }, when) {
+  const osc = audio.createOscillator();
+  const gain = audio.createGain();
+  const end = when + Math.min(len * EIGHTH, 0.5);
+  osc.type = "triangle";
+  osc.frequency.value = noteFreq(note);
+  gain.gain.setValueAtTime(0.0001, when);
+  gain.gain.exponentialRampToValueAtTime(peak, when + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, end);
+  osc.connect(gain).connect(tuneOut);
+  osc.start(when);
+  osc.stop(end + 0.02);
+}
+
+function startTune() {
+  if (tuneTimer || !getAudio()) return;
+  if (!tuneOut) {
+    tuneOut = audio.createGain();
+    tuneOut.connect(audio.destination);
+  }
+  tuneOut.gain.cancelScheduledValues(audio.currentTime);
+  tuneOut.gain.setValueAtTime(0.18, audio.currentTime);
+
+  // Schedule notes a little ahead of time so the beat stays steady.
+  let i = 0;
+  let loopStart = audio.currentTime + 0.5; // let the honk finish first
+  const schedule = () => {
+    while (loopStart + TUNE_NOTES[i].at * EIGHTH < audio.currentTime + 0.25) {
+      playNote(TUNE_NOTES[i], loopStart + TUNE_NOTES[i].at * EIGHTH);
+      i += 1;
+      if (i === TUNE_NOTES.length) {
+        i = 0;
+        loopStart += LOOP * EIGHTH;
+      }
+    }
+  };
+  schedule();
+  tuneTimer = setInterval(schedule, 60);
+}
+
+function stopTune() {
+  if (!tuneTimer) return;
+  clearInterval(tuneTimer);
+  tuneTimer = null;
+  tuneOut.gain.setTargetAtTime(0, audio.currentTime, 0.05);
+}
+
+let musicOn = false;
+let musicFile;
+
+function playMusic() {
+  if (!EVENT.music) {
+    startTune();
+    return;
+  }
+  musicFile ??= Object.assign(new Audio(EVENT.music), { loop: true, volume: 0.6 });
+  musicFile.play().catch(() => {
+    // The file is missing or can't play here: use the built-in tune instead.
+    EVENT.music = "";
+    if (musicOn) startTune();
+  });
+}
+
+function pauseMusic() {
+  musicFile?.pause();
+  stopTune();
+}
+
+function setMusic(on) {
+  musicOn = on;
+  const btn = byId("music-toggle");
+  btn.hidden = false;
+  btn.setAttribute("aria-pressed", String(on));
+  btn.setAttribute("aria-label", on ? "Pause music" : "Play music");
+  btn.firstElementChild.textContent = on ? "🎵" : "🔇";
+  if (on) playMusic();
+  else pauseMusic();
+}
+
+function setupMusic() {
+  byId("music-toggle").addEventListener("click", () => setMusic(!musicOn));
+  // Pause while the guest is in another tab or app, and pick up again when they come back.
+  document.addEventListener("visibilitychange", () => {
+    if (!musicOn) return;
+    if (document.hidden) pauseMusic();
+    else playMusic();
+  });
+}
+
 function setupCelebrate() {
   const btn = byId("celebrate");
+  let musicStarted = false;
   btn.addEventListener("click", () => {
     celebrate();
     honk();
     replay(btn, "wiggle");
     replay(byId("hero-bus"), "hop");
+    // The first tap also starts the music. After that, the music button turns it on and off.
+    if (!musicStarted) {
+      musicStarted = true;
+      setMusic(true);
+    }
   });
   window.addEventListener("load", () => setTimeout(() => celebrate(0.4), 700));
 }
@@ -323,5 +463,6 @@ renderDetails();
 renderMessage();
 renderGallery();
 renderRsvp();
+setupMusic();
 setupCelebrate();
 setupReveal();
