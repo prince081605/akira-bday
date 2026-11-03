@@ -22,8 +22,15 @@ const EVENT = {
     address: "",
   },
 
+  // Shown at the top of the "Before you board" card, with a dot for each color.
+  // Leave the list empty to hide it.
+  dressCode: [
+    { who: "Ladies", wear: "Light brown or brown", colors: ["#D2A679", "#8B5A2B"] },
+    { who: "Gentlemen", wear: "Black", colors: ["#111111"] },
+  ],
+
   notes: [
-    "Our theme is CoComelon's Wheels on the Bus! Come in bright colors: yellow, red, green or blue.",
+    "Our theme is CoComelon's Wheels on the Bus!",
     "Please arrive 15 minutes early so we can start right on time.",
   ],
 
@@ -189,6 +196,29 @@ function renderDetails() {
     byId("reception-map").href = mapsLink(reception.place, reception.address);
   } else {
     byId("reception-card").hidden = true;
+  }
+
+  if (EVENT.dressCode.length === 0) {
+    byId("dress-code").hidden = true;
+  } else {
+    byId("dress-list").replaceChildren(...EVENT.dressCode.map(({ who, wear, colors }) => {
+      const li = document.createElement("li");
+      const swatches = document.createElement("span");
+      swatches.className = "swatches";
+      swatches.setAttribute("aria-hidden", "true");
+      colors.forEach((color) => {
+        const dot = document.createElement("span");
+        dot.className = "swatch";
+        dot.style.setProperty("--s", color);
+        swatches.append(dot);
+      });
+      const label = document.createElement("strong");
+      label.textContent = `${who}:`;
+      const text = document.createElement("span");
+      text.append(label, ` ${wear}`);
+      li.append(swatches, text);
+      return li;
+    }));
   }
 
   byId("notes").replaceChildren(...EVENT.notes.map((note) => {

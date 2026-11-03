@@ -487,6 +487,22 @@ h1 { margin: 22px 0 14px; }
 .card-place { font-weight: 800; font-size: 1.15rem; }
 .card-address { opacity: .8; }
 
+.dress {
+  align-self: stretch;
+  margin: 4px 0 16px;
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--c) 20%, white);
+  border: 2px dashed var(--ink);
+  border-radius: 16px;
+}
+.dress-title { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; margin-bottom: 6px; }
+.dress-list { margin: 0; padding: 0; list-style: none; }
+.dress-list li { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.dress-list li + li { margin-top: 6px; }
+.swatches { display: flex; flex: none; min-width: 38px; }
+.swatch { width: 22px; height: 22px; background: var(--s); border: 2px solid var(--ink); border-radius: 50%; }
+.swatch + .swatch { margin-left: -6px; }
+
 .card-notes { margin: 4px 0 0; padding: 0; list-style: none; }
 .card-notes li { position: relative; padding-left: 26px; margin-bottom: 10px; font-weight: 600; }
 .card-notes li::before { content: "✦"; position: absolute; left: 0; color: var(--red); }
