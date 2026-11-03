@@ -44,7 +44,7 @@ const EVENT = {
     messenger: "", // optional, e.g. "https://m.me/your.username"
     // The RSVP form sends answers to your Google Sheet. Follow rsvp/README.txt to get this link,
     // e.g. "https://script.google.com/macros/s/.../exec". The form stays hidden while it is "".
-    formUrl: "",
+    formUrl: "https://script.google.com/macros/s/AKfycbzoDIy2xPr1aRKkpalsQud4TXz7FCDKcHwV90_Q6HctREJbo44ySdbXCpYPD9R9L0-7XA/exec",
     // How many other people (kids too) one guest can add to their RSVP.
     maxGuests: 4,
   },
