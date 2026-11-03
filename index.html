@@ -225,25 +225,87 @@
       </div>
     </section>
 
-    <!-- 6. RSVP -->
+    <!-- 6. Gift ideas -->
+    <section class="section band band--mist" id="gifts">
+      <div class="container">
+        <h2 class="section-title">Gift ideas</h2>
+        <p class="section-sub" id="gifts-intro"></p>
+        <div class="gift-grid reveal" id="gift-grid"></div>
+      </div>
+    </section>
+
+    <!-- 7. RSVP -->
     <section class="section band band--yellow" id="rsvp">
       <div class="container reveal">
         <div class="ticket">
           <p class="ticket-tag">🎟️ Boarding pass</p>
           <h2 class="section-title">Save your seat!</h2>
           <p class="rsvp-text">Kindly let us know by <strong id="rsvp-by"></strong>.</p>
-          <p class="rsvp-text">Contact <strong id="rsvp-contact"></strong></p>
-          <div class="rsvp-actions">
-            <a class="btn btn--green" id="rsvp-call">📞 Call</a>
-            <a class="btn btn--red" id="rsvp-text">💬 Text</a>
-            <a class="btn btn--sky" id="rsvp-messenger" target="_blank" rel="noopener" hidden>✉️ Messenger</a>
+
+          <form class="rsvp-form" id="rsvp-form" novalidate hidden>
+            <label class="field">
+              <span class="field-label">Your name</span>
+              <input class="input" name="name" autocomplete="name" maxlength="80" required placeholder="e.g. Juan Dela Cruz">
+            </label>
+
+            <fieldset class="field">
+              <legend class="field-label">Will you ride along?</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="attending" value="yes" required><span>🎉 Yes, I'll be there!</span></label>
+                <label class="choice"><input type="radio" name="attending" value="no"><span>💛 Sorry, I can't</span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="field" id="rsvp-bringing" hidden>
+              <legend class="field-label">Bringing anyone with you?</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="bringing" value="no"><span>🙋 Just me</span></label>
+                <label class="choice"><input type="radio" name="bringing" value="yes"><span>👨‍👩‍👧 Yes, I'm bringing others</span></label>
+              </div>
+              <div class="guests" id="rsvp-guests" hidden>
+                <p class="field-hint">Please add each person's name, kids too, so we save enough seats and know who's coming.</p>
+                <ol class="guest-list" id="guest-list"></ol>
+                <button class="btn btn--sky btn--small" type="button" id="add-guest">+ Add another guest</button>
+                <p class="field-hint" id="guest-max" hidden>Bringing more? Please message us first.</p>
+              </div>
+            </fieldset>
+
+            <label class="field">
+              <span class="field-label">A note for <span data-name>Akira</span> <span class="optional">(optional)</span></span>
+              <textarea class="input" name="message" rows="3" maxlength="500"></textarea>
+            </label>
+
+            <p class="seat-count" id="seat-count" hidden></p>
+            <p class="form-error" id="rsvp-error" role="alert" hidden></p>
+            <button class="btn btn--red btn--big" type="submit" id="rsvp-submit">Save my seat 🚌</button>
+          </form>
+
+          <div class="rsvp-done" id="rsvp-done" tabindex="-1" hidden>
+            <p class="rsvp-done-title" id="rsvp-done-title"></p>
+            <p class="rsvp-text" id="rsvp-done-text"></p>
+            <button class="link-btn" type="button" id="rsvp-edit">Change my answer</button>
+          </div>
+
+          <div class="rsvp-reach" id="rsvp-reach">
+            <p class="rsvp-text"><span id="rsvp-contact-lead">Contact</span> <strong id="rsvp-contact"></strong></p>
+            <div class="rsvp-actions">
+              <a class="btn btn--green" id="rsvp-call">📞 Call</a>
+              <a class="btn btn--red" id="rsvp-text">💬 Text</a>
+              <a class="btn btn--sky" id="rsvp-messenger" target="_blank" rel="noopener" hidden>✉️ Messenger</a>
+            </div>
           </div>
         </div>
       </div>
+      <template id="guest-row">
+        <li class="guest">
+          <input class="input" name="guest" maxlength="80" placeholder="Full name, e.g. Maria Dela Cruz">
+          <button class="guest-remove" type="button">✕</button>
+        </li>
+      </template>
     </section>
   </main>
 
-  <!-- 7. Footer -->
+  <!-- 8. Footer -->
   <footer class="band band--ink footer">
     <div class="footer-art" aria-hidden="true">
       <svg class="dove dove--still"><use href="#i-dove"/></svg>

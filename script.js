@@ -36,23 +36,41 @@ const EVENT = {
   // Add names like "Juan Dela Cruz". Leave the list empty to hide this part.
   godparents: [],
 
-  // The RSVP section stays hidden while all of these are "".
+  // The RSVP section stays hidden while all of these are "", and after the baptism day.
   rsvp: {
     by: "",        // e.g. "January 10"
     contact: "",   // e.g. "Messy"
     phone: "",     // e.g. "0917 123 4567". Shows the Call/Text buttons.
     messenger: "", // optional, e.g. "https://m.me/your.username"
+    // The RSVP form sends answers to your Google Sheet. Follow rsvp/README.txt to get this link,
+    // e.g. "https://script.google.com/macros/s/.../exec". The form stays hidden while it is "".
+    formUrl: "",
+    // How many other people (kids too) one guest can add to their RSVP.
+    maxGuests: 4,
+  },
+
+  // Gift ideas for guests who ask what to bring. Leave ideas empty to hide this part.
+  gifts: {
+    intro: "Your presence is the best gift of all! If you'd like to bring something, here are a few ideas.",
+    ideas: [
+      { emoji: "🍼", title: "Baby essentials", text: "Diapers, wipes, baby wash and lotion: the things we use every day." },
+      { emoji: "👕", title: "Clothes", text: "Comfy everyday clothes and shoes for a growing little one. Ask us for the current size." },
+      { emoji: "💌", title: "Monetary gift", text: "A cash gift in an envelope, to help with Akira's needs and savings." },
+      { emoji: "🧸", title: "Other necessities", text: "Feeding sets, bath towels, board books or learning toys." },
+    ],
   },
 
   // Put photo files in the photos/ folder, then set src, e.g. "photos/1.jpg".
   // Tiles with an empty src show a colorful placeholder.
+  // Tiles are square, so tall photos get trimmed top and bottom. Add focus: "bottom" (or "top")
+  // to keep that part of the photo in view.
   photos: [
-    { src: "", caption: "Our little blessing", emoji: "👶" },
-    { src: "", caption: "Our little passenger", emoji: "🚌" },
-    { src: "", caption: "One in a melon", emoji: "🍉" },
-    { src: "", caption: "Tiny hands", emoji: "🤲" },
-    { src: "", caption: "Family love", emoji: "🏡" },
-    { src: "", caption: "Blessed day", emoji: "🕊️" },
+    { src: "photos/little-blessing.jpg", caption: "Our little blessing", emoji: "👶" },
+    { src: "photos/little-passenger.jpg", caption: "Our little passenger", emoji: "🚌" },
+    { src: "photos/one-in-a-melon.jpg", caption: "One in a melon", emoji: "🍉" },
+    { src: "photos/tiny-hands.jpg", caption: "Tiny hands", emoji: "🤲", focus: "bottom" },
+    { src: "photos/happy-family.jpg", caption: "Happy family", emoji: "🏡" },
+    { src: "photos/blessed-day.jpg", caption: "Blessed day", emoji: "🕊️" },
   ],
 
   // Music starts when a guest taps "Beep beep!". To use your own song, put an MP3 or M4A in the
@@ -68,6 +86,7 @@ const ceremonyDate = new Date(EVENT.ceremony.datetime);
 const endDate = EVENT.ceremony.ends ? new Date(EVENT.ceremony.ends) : null;
 const dateLong = ceremonyDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 const dateShort = ceremonyDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+const dateDay = ceremonyDate.toLocaleDateString("en-US", { month: "long", day: "numeric" });
 const timeFormat = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" });
 const timeShort = endDate && timeFormat.formatRange
   ? timeFormat.formatRange(ceremonyDate, endDate)
@@ -209,6 +228,7 @@ function renderGallery() {
       img.src = photo.src;
       img.alt = photo.caption;
       img.loading = "lazy";
+      if (photo.focus) img.style.objectPosition = `center ${photo.focus}`;
       tile.append(img);
     } else {
       const emoji = document.createElement("span");
@@ -225,11 +245,37 @@ function renderGallery() {
   }));
 }
 
+function renderGifts() {
+  const { intro, ideas } = EVENT.gifts;
+  if (ideas.length === 0) {
+    byId("gifts").hidden = true;
+    return;
+  }
+  setText("gifts-intro", intro);
+  byId("gift-grid").replaceChildren(...ideas.map((idea, i) => {
+    const card = document.createElement("article");
+    card.className = "gift";
+    card.style.setProperty("--c", PALETTE[i % PALETTE.length]);
+
+    const emoji = document.createElement("span");
+    emoji.className = "gift-emoji";
+    emoji.setAttribute("aria-hidden", "true");
+    emoji.textContent = idea.emoji;
+    const title = document.createElement("h3");
+    title.textContent = idea.title;
+    const text = document.createElement("p");
+    text.textContent = idea.text;
+
+    card.append(emoji, title, text);
+    return card;
+  }));
+}
+
 function renderRsvp() {
-  const { by, contact, phone, messenger } = EVENT.rsvp;
+  const { by, contact, phone, messenger, formUrl } = EVENT.rsvp;
   const number = phone.replace(/[^\d+]/g, "");
 
-  if (!by && !contact && !number && !messenger) {
+  if (ceremonyDate < new Date() || (!by && !contact && !number && !messenger && !formUrl)) {
     byId("rsvp").hidden = true;
     return;
   }
@@ -238,6 +284,11 @@ function renderRsvp() {
   setText("rsvp-contact", contact);
   byId("rsvp-by").parentElement.hidden = !by;
   byId("rsvp-contact").parentElement.hidden = !contact;
+  byId("rsvp-reach").hidden = !contact && !number && !messenger;
+  if (formUrl) {
+    setText("rsvp-contact-lead", "Questions? Contact");
+    setupRsvpForm(formUrl);
+  }
 
   const call = byId("rsvp-call");
   const text = byId("rsvp-text");
@@ -253,6 +304,167 @@ function renderRsvp() {
     const btn = byId("rsvp-messenger");
     btn.href = messenger;
     btn.hidden = false;
+  }
+}
+
+// Remembers the guest's answer on their phone, so coming back shows "You're on the bus!" again.
+const RSVP_KEY = "rsvp";
+const savedRsvp = {
+  get() {
+    try {
+      const answer = JSON.parse(localStorage.getItem(RSVP_KEY));
+      return answer?.id && answer.name && Array.isArray(answer.guests) ? answer : null;
+    } catch {
+      return null;
+    }
+  },
+  set(answer) {
+    try {
+      localStorage.setItem(RSVP_KEY, JSON.stringify(answer));
+    } catch {
+      // Private browsing or storage blocked: the answer is still sent, just not remembered here.
+    }
+  },
+};
+const newId = () => crypto.randomUUID?.() ?? `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
+
+function setupRsvpForm(url) {
+  const form = byId("rsvp-form");
+  const fields = form.elements;
+  const list = byId("guest-list");
+  const submit = byId("rsvp-submit");
+  const submitLabel = submit.textContent;
+  const { maxGuests, contact } = EVENT.rsvp;
+  let saved = savedRsvp.get();
+
+  const guestInputs = () => [...list.querySelectorAll("input")];
+  const guestNames = () => guestInputs().map((input) => input.value.trim()).filter(Boolean);
+  const attending = () => fields.attending.value === "yes";
+  const bringing = () => attending() && maxGuests > 0 && fields.bringing.value === "yes";
+
+  function addGuest(name = "") {
+    const row = byId("guest-row").content.firstElementChild.cloneNode(true);
+    const input = row.querySelector("input");
+    input.value = name;
+    row.querySelector("button").addEventListener("click", () => {
+      row.remove();
+      update();
+      list.lastElementChild.querySelector("input").focus();
+    });
+    list.append(row);
+    update();
+    return input;
+  }
+
+  function update() {
+    byId("rsvp-bringing").hidden = !attending() || maxGuests < 1;
+    byId("rsvp-guests").hidden = !bringing();
+    if (bringing() && list.children.length === 0) addGuest();
+
+    const full = list.children.length >= maxGuests;
+    byId("add-guest").hidden = full;
+    byId("guest-max").hidden = !full;
+    guestInputs().forEach((input, i) => {
+      input.setAttribute("aria-label", `Guest ${i + 1} name`);
+      input.nextElementSibling.setAttribute("aria-label", `Remove guest ${i + 1}`);
+    });
+
+    const seats = 1 + (bringing() ? guestNames().length : 0);
+    byId("seat-count").hidden = !attending();
+    setText("seat-count", `🚌 Seats to save: ${seats}`);
+  }
+
+  function problem() {
+    if (!fields.name.value.trim()) return [fields.name, "Please type your name."];
+    if (!fields.attending.value) return [fields.attending[0], "Please let us know if you can come."];
+    if (attending() && maxGuests > 0 && !fields.bringing.value) {
+      return [fields.bringing[0], "Please let us know if you're bringing anyone."];
+    }
+    const empty = bringing() && guestInputs().find((input) => !input.value.trim());
+    if (empty) return [empty, "Please add the name of each person you're bringing, or remove the empty line."];
+    return null;
+  }
+
+  function showError(text) {
+    setText("rsvp-error", text);
+    byId("rsvp-error").hidden = !text;
+  }
+
+  function fill(answer) {
+    fields.name.value = answer.name;
+    fields.attending.value = answer.attending;
+    fields.bringing.value = answer.guests.length ? "yes" : "no";
+    list.replaceChildren();
+    answer.guests.forEach((name) => addGuest(name));
+    fields.message.value = answer.message;
+    update();
+  }
+
+  function showDone(answer) {
+    const seats = 1 + answer.guests.length;
+    const coming = answer.attending === "yes";
+    setText("rsvp-done-title", coming ? `You're on the bus, ${answer.name}! 🎉` : `Thanks for letting us know, ${answer.name}.`);
+    setText("rsvp-done-text", coming
+      ? `We saved ${seats === 1 ? "1 seat" : `${seats} seats`} for you. See you on ${dateDay}!`
+      : `We'll miss you! Please keep ${EVENT.name} in your prayers. 💛`);
+    form.hidden = true;
+    byId("rsvp-done").hidden = false;
+  }
+
+  form.addEventListener("input", update);
+  byId("add-guest").addEventListener("click", () => addGuest().focus());
+  byId("rsvp-edit").addEventListener("click", () => {
+    byId("rsvp-done").hidden = true;
+    form.hidden = false;
+    fields.name.focus();
+  });
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const found = problem();
+    if (found) {
+      showError(found[1]);
+      found[0].focus();
+      return;
+    }
+
+    const answer = {
+      // Sending again from the same phone updates the same row in the sheet instead of adding one.
+      id: saved?.id || newId(),
+      name: fields.name.value.trim(),
+      attending: fields.attending.value,
+      guests: bringing() ? guestNames() : [],
+      message: fields.message.value.trim(),
+    };
+    showError("");
+    submit.disabled = true;
+    submit.textContent = "Sending…";
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        body: new URLSearchParams({ ...answer, guests: answer.guests.join("\n") }),
+      });
+      const reply = await res.json();
+      if (!reply.ok) throw new Error(reply.error);
+      saved = answer;
+      savedRsvp.set(answer);
+      showDone(answer);
+      byId("rsvp-done").focus();
+      if (answer.attending === "yes") celebrate(0.6);
+    } catch {
+      showError(`Sorry, we couldn't save your answer. Please check your internet and try again.${contact ? ` You can also message ${contact}.` : ""}`);
+    } finally {
+      submit.disabled = false;
+      submit.textContent = submitLabel;
+    }
+  });
+
+  form.hidden = false;
+  if (saved) {
+    fill(saved);
+    showDone(saved);
+  } else {
+    update();
   }
 }
 
@@ -462,6 +674,7 @@ startCountdown();
 renderDetails();
 renderMessage();
 renderGallery();
+renderGifts();
 renderRsvp();
 setupMusic();
 setupCelebrate();
